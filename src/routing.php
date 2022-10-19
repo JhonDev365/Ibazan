@@ -4,6 +4,8 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 //codigo CORS
 header('Access-Control-Allow-Origin: *');
+header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
 
 require 'Controllers/Departamentos.php';
 require 'Controllers/Ciudades.php';
@@ -153,6 +155,7 @@ $app->group('/api', function () use ($app) {
     $app->get('/login', Login::class . ':getAllLogin');
     $app->get('/login/{id}', Login::class . ':getLogin');
     $app->post('/login/create', Login::class . ':createLogin');
+    $app->post('/loginApp', Login::class . ':validateLogin');
     $app->put('/login/{id}', Login::class . ':updateLogin');
     $app->delete('/login/{id}', Login::class . ':deleteLogin');
 });

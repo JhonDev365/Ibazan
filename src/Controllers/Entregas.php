@@ -4,36 +4,25 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 class Entregas {
     public function getAllEntregas ($request, $response, $args){
-
-        //funcional
-        // $sql = "SELECT a.idEntrega AS id, a.horaInicio AS inicio, a.horaFin AS fin, a.numManifiesto AS manifiesto,
-        // g.nombreRuta AS ruta, b.placa,
-        // CONCAT (e.nombre, ' ',  e.apellidoPaterno) AS conductor,
-        // CONCAT (f.nombre, ' ',  f.apellidoPaterno) AS auxiliar 
-        // FROM entregas a, vehiculos b, usuario_rol c, usuario_rol d, datosUsuarios e, datosUsuarios f, rutas g
-        // WHERE a.idVehiculo = b.idVehiculo
-        // AND a.idRuta = g.idRuta
-        // AND a.idConductor = c.id
-        // AND c.idDatoUsuario = e.idDatoUsuario
-        // AND a.idAuxiliar = d.id
-        // AND d.idDatoUsuario = f.idDatoUsuario
-
         $sql = "SELECT a.idEntrega AS id, a.horaInicio AS inicio, a.horaFin AS fin, a.numManifiesto AS manifiesto,
         g.nombreRuta AS ruta, b.placa,
         CONCAT (e.nombre, ' ',  e.apellidoPaterno) AS conductor,
         CONCAT (f.nombre, ' ',  f.apellidoPaterno) AS auxiliar,
-        (SELECT SUM(valorRecaudado) AS recaudado FROM visitas WHERE idEntrega = a.idEntrega) AS vrRecaudado,
+        -- (SELECT SUM(valorRecaudado) AS recaudado FROM visitas WHERE idEntrega = a.idEntrega) AS vrRecaudado,
+        (SELECT SUM(valorRecaudado) FROM visitas WHERE idEntrega = a.idEntrega) AS vrRecaudado,
         (SELECT  COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega) AS cantVisitas,
         (SELECT  COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega AND idEstado = '2') AS cantEntregados,
-        ROUND ((SELECT COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega AND idEstado = '2')/
+        (SELECT  COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega AND idEstado = '3') AS cantNoEntregados,
+        (SELECT  COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega AND idEstado = '2')+
+        (SELECT  COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega AND idEstado = '3') AS totalEntregados,
+        ROUND (((SELECT  COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega AND idEstado = '2')+
+        (SELECT  COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega AND idEstado = '3'))/
         (SELECT COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega)*100) AS progreso,
-        -- IF (ROUND ((SELECT COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega AND idEstado = '2')/
-        -- (SELECT COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega)*100) <= 30, 'danger', 'warning') AS class
         IF (ROUND ((SELECT COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega AND idEstado = '2')/
-        (SELECT COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega)*100) <= 80, 'success', ELSE IF(ROUND ((SELECT COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega AND idEstado = '2')/
-        (SELECT COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega)*100)) <= 30, 'warning') AS class
-       
-        FROM entregas a, vehiculos b, usuario_rol c, usuario_rol d, datosUsuarios e, datosUsuarios f, rutas g
+        (SELECT COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega)*100) <= 30, 'danger', IF ((ROUND ((SELECT COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega AND idEstado = '2')/
+        (SELECT COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega)*100)) <= 75, 'warning', 'success')) AS class 
+        -- FROM entregas a, vehiculos b, usuario_rol c, usuario_rol d, datosUsuarios e, datosUsuarios f, rutas g
+        FROM entregas a, vehiculos b, datosUsuarios_rol c, datosUsuarios_rol d, datosUsuarios e, datosUsuarios f, rutas g
         WHERE a.idVehiculo = b.idVehiculo
         AND a.idRuta = g.idRuta
         AND a.idConductor = c.id
@@ -110,7 +99,20 @@ class Entregas {
 
     public function getEntrega ($request, $response, $args){
         $id_entrega = $request->getAttribute('id');
-        $sql = "SELECT * FROM entregas WHERE idEntrega = $id_entrega";
+        $sql = "SELECT a.idEntrega,
+        (SELECT  COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega) AS cantVisitas,
+        (SELECT  COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega AND idEstado = '2') AS cantEntregados,
+        (SELECT  COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega AND idEstado = '3') AS cantNoEntregados,
+        (SELECT  COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega AND idEstado = '2')+
+        (SELECT  COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega AND idEstado = '3') AS totalEntregados,
+        ROUND (((SELECT  COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega AND idEstado = '2')+
+        (SELECT  COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega AND idEstado = '3'))/
+        (SELECT COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega)*100) AS progreso,
+        IF (ROUND ((SELECT COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega AND idEstado = '2')/
+        (SELECT COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega)*100) <= 30, 'danger', IF ((ROUND ((SELECT COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega AND idEstado = '2')/
+        (SELECT COUNT(idEntrega) AS cantVisitas FROM visitas WHERE idEntrega = a.idEntrega)*100)) <= 75, 'warning', 'success')) AS class 
+        FROM entregas a
+        WHERE idEntrega = $id_entrega";
         try{
         $db = new db();
         $db = $db->conectDB();

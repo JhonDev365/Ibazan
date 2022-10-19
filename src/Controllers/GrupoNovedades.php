@@ -4,7 +4,8 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 class GrupoNovedades {
     public function getAllGrupos ($request, $response, $args){
-        $sql = "SELECT * FROM grupoNovedades";
+        $sql = "SELECT idGrupoNovedad AS id, nombreGrupoNovedad AS grupo
+        FROM grupoNovedades";
         try{
         $db = new db();
         $db = $db->conectDB(); 

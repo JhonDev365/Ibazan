@@ -4,7 +4,8 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 class Ciudades {
     public function getAllCiudades ($request, $response, $args){
-        $sql = "SELECT * FROM ciudades";
+        $sql = "SELECT idCiudad AS id, nombreCiudad AS ciudad, visible 
+        FROM ciudades";
     try{
       $db = new db();
       $db = $db->conectDB(); 

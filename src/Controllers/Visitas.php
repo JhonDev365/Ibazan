@@ -248,9 +248,15 @@ class Visitas {
         $fechaNovedad = $request->getParam('fechaNovedad');
         $valorRecaudado = $request->getParam('valorRecaudado');
         $observaciones = $request->getParam('observaciones');
+        $idCliente = $request->getParam('idCliente');
+        $idEntrega = $request->getParam('idEntrega');
+        $idEstado = $request->getParam('idEstado');
+        $idFactura = $request->getParam('idFactura');
+        $idGrupoNovedad = $request->getParam('idGrupoNovedad');
+        $codTipoNovedad = $request->getParam('codTipoNovedad');
 
-        $sql = "INSERT INTO visitas (fechaNovedad, valorRecaudado, observaciones)
-        VALUES (:fechaNovedad, :valorRecaudado, :observaciones)";
+        $sql = "INSERT INTO visitas (fechaNovedad, valorRecaudado, observaciones, idCliente, idEntrega, idEstado, idFactura, idGrupoNovedad, codTipoNovedad)
+        VALUES (:fechaNovedad, :valorRecaudado, :observaciones, :idCliente, :idEntrega, :idEstado, :idFactura, :idGrupoNovedad, :codTipoNovedad)";
         try{
         $db = new db();
         $db = $db->conectDB();
@@ -259,6 +265,12 @@ class Visitas {
         $resultado->bindParam(':fechaNovedad', $fechaNovedad);
         $resultado->bindParam(':valorRecaudado', $valorRecaudado);
         $resultado->bindParam(':observaciones', $observaciones);
+        $resultado->bindParam(':idCliente', $idCliente);
+        $resultado->bindParam(':idEntrega', $idEntrega);
+        $resultado->bindParam(':idEstado', $idEstado);
+        $resultado->bindParam(':idFactura', $idFactura);
+        $resultado->bindParam(':idGrupoNovedad', $idGrupoNovedad);
+        $resultado->bindParam(':codTipoNovedad', $codTipoNovedad);
 
         $resultado->execute();
         echo json_encode("Nueva visita ha sido guardada con éxito.");  

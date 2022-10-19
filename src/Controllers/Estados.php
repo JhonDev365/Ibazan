@@ -4,7 +4,8 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 class Estados {
     public function getAllEstados ($request, $response, $args){
-        $sql = "SELECT * FROM estados";
+        $sql = "SELECT idEstado AS id, nombreEstado AS estado
+        FROM estados";
         try{
             $db = new db();
             $db = $db->conectDB(); 

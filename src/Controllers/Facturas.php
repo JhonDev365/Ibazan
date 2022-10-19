@@ -4,7 +4,8 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 class Facturas {
     public function getAllFacturas ($request, $response, $args){
-        $sql = "SELECT * FROM facturas";
+        $sql = "SELECT idFactura AS id, numFactura AS factura, valorFactura, cantidad
+        FROM facturas";
         try{
         $db = new db();
         $db = $db->conectDB();

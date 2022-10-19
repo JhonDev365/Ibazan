@@ -4,7 +4,8 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 class TipoNovedades {
     public function getAllTipos ($request, $response, $args){
-        $sql = "SELECT * FROM tipoNovedades";
+        $sql = "SELECT codTipoNovedad AS cod, nombreTipoNovedad AS tipo 
+        FROM tipoNovedades";
         try{
         $db = new db();
         $db = $db->conectDB(); 
